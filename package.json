@@ -10,6 +10,7 @@
   "author": "Matt Fletcher",
   "license": "ISC",
   "dependencies": {
+    "async": "^1.4.2",
     "js-combinatorics": "^0.5.0",
     "underscore": "^1.8.3",
     "yargs": "^3.27.0"
