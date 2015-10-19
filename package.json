@@ -1,0 +1,26 @@
+{
+  "name": "MaffSolve",
+  "version": "1.0.0",
+  "description": "Solves scrabble, or something",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Matt Fletcher",
+  "license": "ISC",
+  "dependencies": {
+    "js-combinatorics": "^0.5.0",
+    "underscore": "^1.8.3",
+    "yargs": "^3.27.0"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "github.com/maffoobristol/scrabblesolver"
+  },
+  "bugs": {
+    "url": "https://github.com/maffoobristol/scrabblesolver/issues"
+  },
+  "homepage": "https://github.com/maffoobristol/scrabblesolver"
+}
