@@ -555,7 +555,18 @@
     */
     getChild: function(index)
     {
+      if (index === undefined) {
+        index = 0;
+      }
       return this.trie.getNodeByIndex( this.firstChild + index );
+    },
+
+    getChildren: function () {
+      var arr = [];
+      for (var i = 0; i < this.getChildCount(); i++) {
+        arr.push(this.getChild(i));
+      }
+      return arr;
     }
   };
 
@@ -623,7 +634,8 @@
     lookup: function( word )
     {
       var node = this.getRoot();
-      for ( var i = 0; i < word.length; i++ ) {
+      var len = word.length;
+      for ( var i = 0; i < len; i++ ) {
         var child;
         var j = 0;
         for ( ; j < node.getChildCount(); j++ ) {
@@ -640,121 +652,35 @@
       }
 
       return node.final;
-    }
-  };
+    },
 
-  /**************************************************************************************************
-    DEMONSTATION APPLICATION FUNCTIONS
-    *************************************************************************************************/
-
-  /**
-    Load a dictionary asynchronously.
-    */
-  function loadDictionary()
-  {
-    var xmlHttpReq;
-    try {
-       xmlHttpReq = new XMLHttpRequest();
-    } catch ( trymicrosoft ) {
-      try {
-        xmlHttpReq = new ActiveXObject("Msxml2.XMLHTTP");
-      } catch(othermicrosoft) {
-        try {
-          xmlHttpReq = new ActiveXObject("Microsoft.XMLHTTP");
-        } catch(failed) {
-          xmlHttpReq = null;
+    getChildren: function (word) {
+      var node = this.getRoot();
+      var len = word.length;
+      var children = [];
+      for ( var i = 0; i < len; i++ ) {
+        var child;
+        var j = 0;
+        for ( ; j < node.getChildCount(); j++ ) {
+          child = node.getChild( j );
+          if ( child.letter === word[i] ) {
+            break;
+          }
         }
-      }
-    }
 
-    strUrl = "ospd3.txt";
-
-    xmlHttpReq.open("GET", "ospd3.txt", true);
-    xmlHttpReq.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    xmlHttpReq.onreadystatechange = function() {
-      if (xmlHttpReq.readyState === 4) {
-        if (xmlHttpReq.status === 200 ) {
-          document.getElementById("input").value =
-            xmlHttpReq.responseText;
-        } else if ( xmlHttpReq.message ) {
-          alert( xmlHttpReq.message );
-        } else {
-          alert( "Network error. Check internet connection" );
+        if (i === len - 1) {
+          if (child.getChildCount()) {
+            children = children.concat(child.getChildren());
+          }
         }
-      }
-    };
-
-    xmlHttpReq.send("");
-  }
-
-  /**
-    Encode the trie in the input text box.
-    */
-  function go()
-  {
-    // create a trie
-    var trie = new Trie();
-
-    // split the words of the input up. Sort them for faster trie insertion.
-    var words = document.getElementById("input").value.split(/\s+/);
-    words.sort();
-    var regex = /^[a-z]+$/;
-    for ( var i = 0; i < words.length; i++ ) {
-      // To save space, our encoding handles only the letters a-z. Ignore
-      // words that contain other characters.
-      var word = words[i].toLowerCase();
-      if ( word.match( /^[a-z]+$/ ) ) {
-        trie.insert( word );
+        if ( j === node.getChildCount() ) {
+          return false;
+        }
+        node = child;
       }
 
+      return children;
     }
-
-    // Encode the trie.
-    var trieData = trie.encode();
-
-    // Encode the rank directory
-    var directory = RankDirectory.Create( trieData, trie.getNodeCount() * 2 +
-        1, L1, L2 );
-    var output;
-
-    output = '{\n    "nodeCount": ' + trie.getNodeCount() + ",\n";
-
-    output += '    "directory": "' + directory.getData() + '",\n';
-
-    output += '    "trie": "' + trieData + '"\n';
-    output += "}\n";
-
-    document.getElementById("output").value = output;
-
-    document.getElementById("encodeStatus").innerHTML =
-      "Encoded " + document.getElementById("input").value.length +
-      " bytes to " + output.length + " bytes.";
-
-  }
-
-  /**
-    Decode the data in the output textarea, and use it to check if a word exists
-    in the dictionary.
-    */
-  function lookup()
-  {
-    var status = "";
-    try
-    {
-      var json = eval( '(' + document.getElementById("output").value + ")" );
-      var ftrie = new FrozenTrie( json.trie, json.directory, json.nodeCount
-          );
-      var word = document.getElementById("lookup").value;
-      if ( ftrie.lookup( document.getElementById("lookup").value ) ) {
-        status = '"' + word + "' is in the dictionary.";
-      } else {
-        status = '"' + word + "' IS NOT in the dictionary.";
-      }
-    } catch ( e ) {
-      status = "Error. Have you encoded the dictionary yet?";
-    }
-
-    document.getElementById("status").innerHTML = status;
 
   }
 
